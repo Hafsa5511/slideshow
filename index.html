@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ysabeau+Infant:ital,wght@0,1..1000;1,1..1000&display=swap" rel="stylesheet">
+
+    <title>Beat the Streets Newsletter - Hafsa Abbasi</title>
+    <style>
+      * {
+        cursor: none !important; 
+      }
+
+      /* Main cursor dot */
+      .custom-cursor {
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: rgba(255, 215, 0, 0.9);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6),
+          0 0 25px rgba(255, 215, 0, 0.3);
+      }
+
+      /* Outer ring */
+      .cursor-ring {
+        position: fixed;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transition: all 0.2s ease-out;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+      }
+
+      /* Sparkle trail */
+      .cursor-sparkle {
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        background: rgba(255, 215, 0, 0.8);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        animation: sparkle-fade 0.8s ease-out forwards;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      }
+
+      @keyframes sparkle-fade {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+      }
+
+      .cursor-ring.hover {
+        width: 60px;
+        height: 60px;
+        border-color: rgba(255, 215, 0, 0.7);
+        border-width: 2px;
+      }
+
+      .custom-cursor.hover {
+        transform: scale(0.6);
+        background: rgba(255, 215, 0, 1);
+      }
+
+      #starfield {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        color: #fff;
+        font-family: 'Ysabeau Infant', sans-serif;
+        position: relative;
+        min-height: 100vh;
+      }
+
+      .page-wrapper {
+        width: 1440px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .container {
+        width: 1200px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      @font-face {
+        font-family: 'TheScientist';
+        src: url('TheScientist-L3EyW.ttf') format('truetype');
+      }
+
+      /* Close Button */
+      .close-btn {
+        position: fixed;
+        top: 40px;
+        right: 60px;
+        font-size: 40px;
+        color: rgba(255, 169, 88, 1);
+        text-decoration: none;
+        z-index: 100;
+        transition: transform 0.3s, color 0.3s;
+        font-weight: 300;
+      }
+
+      .close-btn:hover {
+        transform: rotate(90deg);
+        color: rgba(255, 215, 0, 1);
+      }
+
+      /* Project Content */
+      .project-content {
+        padding: 150px 0 100px 0;
+      }
+
+      .project-header {
+        margin-bottom: 80px;
+      }
+
+      .project-title {
+        font-family: 'TheScientist', cursive;
+        font-size: 60px;
+        color: rgba(255, 169, 88, 1);
+        margin-bottom: 20px;
+      }
+
+      .project-meta {
+        font-size: 18px;
+        color: rgba(255, 169, 88, 0.7);
+        margin-bottom: 40px;
+      }
+
+      .project-description {
+        font-size: 16px;
+        line-height: 2.5;
+        letter-spacing: 0.3px;
+        max-width: 800px;
+        margin-bottom: 80px;
+      }
+
+      /* Slideshow */
+      .slideshow-container {
+        position: relative;
+        width: 900px;
+        margin: 0 auto 80px auto;
+        padding: 40px;
+        background: rgba(255, 169, 88, 0.03);
+        border-radius: 40px;
+        border: 1px solid rgba(255, 169, 88, 0.1);
+        box-shadow: 0 0 60px rgba(255, 169, 88, 0.1);
+      }
+
+      .slide-wrapper {
+        position: relative;
+        width: 100%;
+        height: 600px;
+        overflow: hidden;
+        border-radius: 30px;
+        background: #000;
+      }
+
+      .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .slide.active {
+        opacity: 1;
+      }
+
+      .slide img {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 20px;
+        object-fit: contain;
+      }
+
+      /* Navigation */
+      .slide-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+      }
+
+      .slide-btn {
+        background: none;
+        border: 1px solid rgba(255, 169, 88, 0.3);
+        color: rgba(255, 169, 88, 1);
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-family: 'Ysabeau Infant', sans-serif;
+        transition: all 0.3s;
+        letter-spacing: 0.5px;
+      }
+
+      .slide-btn:hover {
+        background: rgba(255, 169, 88, 0.1);
+        border-color: rgba(255, 169, 88, 0.6);
+        box-shadow: 0 0 20px rgba(255, 169, 88, 0.2);
+      }
+
+      .slide-counter {
+        font-size: 14px;
+        color: rgba(255, 169, 88, 0.7);
+        letter-spacing: 1px;
+      }
+
+      /* Dots */
+      .slide-dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 169, 88, 0.2);
+        transition: all 0.3s;
+        border: 1px solid transparent;
+      }
+
+      .dot.active {
+        background: rgba(255, 169, 88, 0.8);
+        box-shadow: 0 0 10px rgba(255, 169, 88, 0.4);
+      }
+
+      .dot:hover {
+        background: rgba(255, 169, 88, 0.5);
+        transform: scale(1.2);
+      }
+
+      .image-caption {
+        font-size: 14px;
+        color: rgba(255, 169, 88, 0.7);
+        font-style: italic;
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      
+      .scroll-progress {
+  position: fixed;
+  top: 0;
+  right: 60px;
+  height: 100vh;
+  width: 2px;
+  background: rgba(255, 215, 0, 0.1);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.progress-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(180deg, 
+    rgba(133, 120, 150, 0.3) 0%, 
+    rgba(133, 120, 150, 0.8) 50%, 
+    rgba(133, 120, 150, 1) 100%);
+  box-shadow: 0 0 10px rgba(133, 120, 150, 0.5);
+  transition: height 0.1s ease-out;
+}
+
+.progress-glow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: rgba(133, 120, 150, 1);
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(133, 120, 150, 0.8),
+              0 0 25px rgba(133, 120, 150, 0.5);
+  opacity: 0;
+  transition: bottom 0.1s ease-out, opacity 0.3s ease-out;
+}
+    </style>
+  </head>
+
+  <body>
+    
+    
+    <div class="scroll-progress">
+  <div class="progress-line"></div>
+  <div class="progress-glow"></div>
+</div>
+    <canvas id="starfield"></canvas>
+
+    <div class="custom-cursor"></div>
+    <div class="cursor-ring"></div>
+
+    <a href="https://hafsa5511.github.io/portfolio/" class="close-btn">✕</a>
+
+    <div class="page-wrapper">
+      <div class="container project-content">
+
+        <div class="project-header">
+          <h1 class="project-title">Beat the Streets Newsletter</h1>
+          <p class="project-meta">2022 • Newsletter • Clip Studio Paint, photoshop, InDesign</p>
+          <div class="project-description">
+            <p>Designed an end-of-year newsletter for Beat the Streets highlighting key events and team members from the year. I collaborated with a co–marketing lead on the newsletter's design and created all accompanying illustrations. Together, we also developed a series of social media posts. The newsletter features my illustration work and marketing contributions, with selected pages included to showcase my role in the project.</p>
+          </div>
+        </div>
+
+        <!-- Slideshow -->
+        <div class="slideshow-container">
+          <div class="slide-wrapper">
+            <div class="slide active">
+              <img src="page 1.png" alt="Newsletter page 1">
+            </div>
+            <div class="slide">
+              <img src="page 2.png" alt="Newsletter page 2">
+            </div>
+            <div class="slide">
+              <img src="page 3.png" alt="Newsletter page 3">
+            </div>
+            <div class="slide">
+              <img src="page 4.png" alt="Newsletter page 4">
+            </div>
+            <div class="slide">
+              <img src="page 5.png" alt="Newsletter page 5">
+            </div>
+            <div class="slide">
+              <img src="page 6.png" alt="Newsletter page 6">
+            </div>
+            <div class="slide">
+              <img src="page 7.png" alt="Newsletter page 7">
+            </div>
+            <div class="slide">
+              <img src="page 8.png" alt="Newsletter page 8">
+            </div>
+            <div class="slide">
+              <img src="page 9.png" alt="Newsletter page 9">
+            </div>
+            <div class="slide">
+              <img src="page 10.png" alt="Newsletter page 10">
+            </div>
+            <div class="slide">
+              <img src="page 11.png" alt="Newsletter page 11">
+            </div>
+            <div class="slide">
+              <img src="page 12.png" alt="Newsletter page 12">
+            </div>
+            <div class="slide">
+              <img src="page 13.png" alt="Newsletter page 13">
+            </div>
+            <div class="slide">
+              <img src="page 14.png" alt="Newsletter page 14">
+            </div>
+          </div>
+
+          <div class="slide-nav">
+            <button class="slide-btn" id="prevBtn">← Previous</button>
+            <span class="slide-counter"><span id="currentSlide">1</span> / 14</span>
+            <button class="slide-btn" id="nextBtn">Next →</button>
+          </div>
+
+          <div class="slide-dots" id="dotsContainer"></div>
+        </div>
+
+        <p class="image-caption">Holiday-themed newsletter design highlighting events, team members, and social media content</p>
+
+      </div>
+    </div>
+
+    <script>
+      // Slideshow functionality
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const currentSlideSpan = document.getElementById('currentSlide');
+      const dotsContainer = document.getElementById('dotsContainer');
+
+      // Create dots
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      }
+
+      const dots = document.querySelectorAll('.dot');
+
+      function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        currentSlide = (n + totalSlides) % totalSlides;
+        
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+        currentSlideSpan.textContent = currentSlide + 1;
+      }
+
+      function nextSlide() {
+        showSlide(currentSlide + 1);
+      }
+
+      function prevSlide() {
+        showSlide(currentSlide - 1);
+      }
+
+      function goToSlide(n) {
+        showSlide(n);
+      }
+
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevSlide();
+        if (e.key === 'ArrowRight') nextSlide();
+      });
+
+      const cursor = document.querySelector('.custom-cursor');
+      const cursorRing = document.querySelector('.cursor-ring');
+      let mouseX = 0;
+      let mouseY = 0;
+      let ringX = 0;
+      let ringY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+
+        if (Math.random() > 0.85) {
+          createSparkle(mouseX, mouseY);
+        }
+      });
+
+      function animateRing() {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+
+        cursorRing.style.left = (ringX - 20) + 'px';
+        cursorRing.style.top = (ringY - 20) + 'px';
+
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+
+      function createSparkle(x, y) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'cursor-sparkle';
+        sparkle.style.left = x + 'px';
+        sparkle.style.top = y + 'px';
+        document.body.appendChild(sparkle);
+
+        setTimeout(() => sparkle.remove(), 800);
+      }
+
+      const interactiveElements = document.querySelectorAll('a, button, .dot');
+
+      interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          cursor.classList.add('hover');
+          cursorRing.classList.add('hover');
+        });
+
+        el.addEventListener('mouseleave', () => {
+          cursor.classList.remove('hover');
+          cursorRing.classList.remove('hover');
+        });
+      });
+    </script>
+
+    <script>
+      // Starfield animation
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+
+      let stars = [];
+      let shootingStars = [];
+      let scrollY = 0;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initStars();
+      }
+
+      function initStars() {
+        stars = [];
+        const numStars = 400;
+
+        for (let i = 0; i < numStars; i++) {
+          const rand = Math.random();
+          let size;
+          if (rand < 0.7) {
+            size = Math.random() * 0.8 + 0.3;
+          } else if (rand < 0.9) {
+            size = Math.random() * 1.2 + 0.8;
+          } else {
+            size = Math.random() * 1.8 + 1.2;
+          }
+
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height * 3,
+            size: size,
+            speed: Math.random() * 0.5 + 0.1,
+            brightness: Math.random() * 0.3 + 0.25,
+            twinkle: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.02 + 0.01
+          });
+        }
+      }
+
+      function createShootingStar() {
+        const side = Math.random();
+        let startX, startY, endX, endY;
+        
+        if (side < 0.5) {
+          startX = Math.random() * canvas.width * 0.3;
+          startY = Math.random() * canvas.height * 0.3;
+          endX = startX + 200 + Math.random() * 300;
+          endY = startY + 200 + Math.random() * 300;
+        } else {
+          startX = canvas.width * 0.7 + Math.random() * canvas.width * 0.3;
+          startY = Math.random() * canvas.height * 0.3;
+          endX = startX - 200 - Math.random() * 300;
+          endY = startY + 200 + Math.random() * 300;
+        }
+        
+        shootingStars.push({
+          x: startX,
+          y: startY,
+          endX: endX,
+          endY: endY,
+          progress: 0,
+          speed: 0.015 + Math.random() * 0.01,
+          opacity: 1
+        });
+      }
+
+      function drawShootingStars() {
+        shootingStars.forEach((star, index) => {
+          star.progress += star.speed;
+          
+          if (star.progress > 1) {
+            star.opacity -= 0.05;
+          }
+          
+          if (star.opacity <= 0) {
+            shootingStars.splice(index, 1);
+            return;
+          }
+          
+          const currentX = star.x + (star.endX - star.x) * star.progress;
+          const currentY = star.y + (star.endY - star.y) * star.progress;
+          
+          const tailX = currentX - (star.endX - star.x) * 0.05;
+          const tailY = currentY - (star.endY - star.y) * 0.05;
+          
+          const gradient = ctx.createLinearGradient(tailX, tailY, currentX, currentY);
+          gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+          gradient.addColorStop(0.5, `rgba(255, 255, 255, ${0.3 * star.opacity})`);
+          gradient.addColorStop(1, `rgba(255, 255, 255, ${0.8 * star.opacity})`);
+          
+          ctx.beginPath();
+          ctx.moveTo(tailX, tailY);
+          ctx.lineTo(currentX, currentY);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.arc(currentX, currentY, 2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#fff';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+      }
+
+      function drawStars() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        stars.forEach(star => {
+          const yPos = (star.y - scrollY * star.speed) % (canvas.height + 500);
+
+          star.twinkle += star.twinkleSpeed;
+          const twinkleFactor = 0.8 + Math.sin(star.twinkle) * 0.2;
+
+          ctx.beginPath();
+          ctx.arc(star.x, yPos, star.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * twinkleFactor})`;
+          ctx.fill();
+
+          if (star.size > 1) {
+            ctx.shadowBlur = 4 * twinkleFactor;
+            ctx.shadowColor = '#fff';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        });
+
+        drawShootingStars();
+      }
+
+      function animate() {
+        drawStars();
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('scroll', () => {
+        scrollY = window.scrollY;
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+
+      resizeCanvas();
+      animate();
+
+      setInterval(() => {
+        if (Math.random() > 0.3) {
+          createShootingStar();
+        }
+      }, 8000);
+    </script>
+<script>
+  // Scroll progress indicator
+  const progressLine = document.querySelector('.progress-line');
+  const progressGlow = document.querySelector('.progress-glow');
+
+  function updateProgress() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    const scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+    
+    progressLine.style.height = scrollPercent + '%';
+    
+    if (scrollPercent > 2) {
+      progressGlow.style.opacity = '1';
+      progressGlow.style.bottom = (100 - scrollPercent) + '%';
+    } else {
+      progressGlow.style.opacity = '0';
+    }
+  }
+
+  window.addEventListener('scroll', updateProgress);
+  window.addEventListener('resize', updateProgress);
+  
+  updateProgress();
+</script>
+  </body>
+</html>
